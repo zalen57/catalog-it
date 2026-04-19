@@ -27,8 +27,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Ubah jika repo Pages bukan di subpath /catalog/ (mis. user site root "/")
-          VITE_BASE_PATH: /catalog/
+          # Harus sama dengan nama repo Project Pages: /catalog-it/ → https://zalen57.github.io/catalog-it/
+          VITE_BASE_PATH: /catalog-it/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
