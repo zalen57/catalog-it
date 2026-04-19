@@ -33,8 +33,8 @@ export default function Home() {
             </span>
             <h1>Insight IT, desain premium, tanpa PHP & SQL</h1>
             <p className="hero-lead">
-              Jelajahi artikel kurasi: AI, programming, gadget, keamanan, dan startup. Admin panel
-              lengkap dengan Firebase — siap untuk portfolio dan GitHub Pages.
+              Baca topik yang lagi relevan—AI, coding, gadget, keamanan, sampai startup. Tanpa
+              basa-basi: fokus ke inti biar cepat dapat arah, bukan cuma judul yang menggoda.
             </p>
             <div className="cta-row">
               <Link to="/articles">
