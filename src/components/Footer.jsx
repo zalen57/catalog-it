@@ -5,9 +5,15 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-inner">
-        <span>© {new Date().getFullYear()} IT Tech Catalog — React · Firebase · No PHP/SQL</span>
+        <span>
+          © {new Date().getFullYear()} IT Tech Catalog — React · Firebase · No PHP/SQL
+          {' · '}
+          <a href="https://zalen57.github.io/catalog-it/" target="_blank" rel="noreferrer">
+            Live
+          </a>
+        </span>
         <span style={{ display: 'flex', gap: '0.75rem' }}>
-          <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub">
+          <a href="https://github.com/zalen57/catalog-it" target="_blank" rel="noreferrer" aria-label="GitHub repo">
             <SiGithub size={22} />
           </a>
           <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">

@@ -29,7 +29,7 @@ Baru wajib **Firebase** (NoSQL + Auth). Ikuti **[SETUP-FIREBASE.md](./SETUP-FIRE
 npm run build:xampp
 ```
 
-Lalu demo lewat **XAMPP** atau **GitHub Pages** + tunjukkan **Firestore** berisi koleksi `articles` dan dokumen `users` untuk admin.
+Lalu demo lewat **XAMPP** (`http://localhost/catalog/dist/`) atau **GitHub Pages** (**https://zalen57.github.io/catalog-it/**) + tunjukkan **Firestore** berisi koleksi `articles` dan dokumen `users` untuk admin.
 
 ---
 

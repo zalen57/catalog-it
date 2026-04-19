@@ -4,7 +4,7 @@
 
 **Kamu boleh skip Firebase.** Situsnya tetap jalan.
 
-1. Buka situs kamu (misalnya `http://localhost/catalog/dist/`).
+1. Buka situs kamu (lokal: `http://localhost/catalog/dist/` — atau live: **https://zalen57.github.io/catalog-it/**).
 2. Buka menu **Admin**.
 3. Klik **Masuk mode demo admin**.
 
@@ -111,7 +111,7 @@ Storage → **Rules** → tempel **`storage.rules`** → **Publish**.
 
 - **XAMPP** (folder `dist/`):  
   `npm run build:xampp`  
-  lalu buka lagi `http://localhost/catalog/dist/`
+  lalu buka lagi `http://localhost/catalog/dist/` (atau setelah deploy: **https://zalen57.github.io/catalog-it/**)
 
 - **npm run dev**:  
   stop server (Ctrl+C) → `npm run dev` lagi.
