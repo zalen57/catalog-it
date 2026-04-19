@@ -1,5 +1,6 @@
 import { FaLinkedin } from 'react-icons/fa6'
 import { SiGithub, SiX } from 'react-icons/si'
+import { LIVE_SITE_URL, REPO_URL } from '../config/siteLinks.js'
 
 export default function Footer() {
   return (
@@ -8,12 +9,12 @@ export default function Footer() {
         <span>
           © {new Date().getFullYear()} IT Tech Catalog — React · Firebase · No PHP/SQL
           {' · '}
-          <a href="https://zalen57.github.io/catalog-it/" target="_blank" rel="noreferrer">
+          <a href={LIVE_SITE_URL} target="_blank" rel="noreferrer">
             Live
           </a>
         </span>
         <span style={{ display: 'flex', gap: '0.75rem' }}>
-          <a href="https://github.com/zalen57/catalog-it" target="_blank" rel="noreferrer" aria-label="GitHub repo">
+          <a href={REPO_URL} target="_blank" rel="noreferrer" aria-label="GitHub repo">
             <SiGithub size={22} />
           </a>
           <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">

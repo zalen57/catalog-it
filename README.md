@@ -2,7 +2,7 @@
 
 Katalog artikel teknologi (React + Vite + Firebase) tanpa PHP/SQL. UI biru / abu gelap, background full-image, ikon SVG (react-icons), animasi Framer Motion, mode gelap, bookmark & suka, chatbot (Gemini opsional + fallback lokal).
 
-**Live (GitHub Pages):** [https://zalen57.github.io/catalog-it/](https://zalen57.github.io/catalog-it/) · **Repo:** [github.com/zalen57/catalog-it](https://github.com/zalen57/catalog-it)
+**URL live, repo GitHub, dan path Pages:** satu file → **[`src/config/siteLinks.js`](./src/config/siteLinks.js)** (footer baca dari situ). Setelah edit, samakan teks contoh di README / SETUP / PANDUAN / `.env.example` dan `VITE_BASE_PATH` di workflow Pages.
 
 **Pusing setup Firebase?** Ikuti saja file **[SETUP-FIREBASE.md](./SETUP-FIREBASE.md)** (langkah 1 → 6, berurutan).
 
@@ -59,13 +59,13 @@ Ringkasnya ada di **[SETUP-FIREBASE.md](./SETUP-FIREBASE.md)**. Di repo ini juga
 ## GitHub Pages
 
 1. Repo **Settings → Pages → Build and deployment → Source** harus **GitHub Actions** (bukan *Deploy from a branch*). Kalau pakai branch/root, yang dilayani adalah `index.html` sumber (`/src/main.jsx`) → **layar putih**.
-2. Setelah Source = Actions, tab **Actions** → jalankan workflow *Deploy to GitHub Pages* (atau push ke `main`). Tunggu hijau, lalu buka **https://zalen57.github.io/catalog-it/**.
-3. Di `.github/workflows/github-pages.yml`, `VITE_BASE_PATH` harus `/nama-repo/`. Repo ini: **`/catalog-it/`** untuk `https://zalen57.github.io/catalog-it/`.
+2. Setelah Source = Actions, tab **Actions** → jalankan workflow *Deploy to GitHub Pages* (atau push ke `main`). Tunggu hijau, lalu buka URL **live** di [`siteLinks.js`](./src/config/siteLinks.js) (`LIVE_SITE_URL`).
+3. Di `.github/workflows/github-pages.yml`, `VITE_BASE_PATH` harus sama dengan **`GITHUB_PAGES_BASE_PATH`** di [`siteLinks.js`](./src/config/siteLinks.js) (biasanya `/nama-repo/`).
 4. Untuk Firebase di Pages: **Settings → Secrets and variables → Actions** → Repository secrets `VITE_FIREBASE_*` (sama seperti `.env` lokal).
 
 **Cek cepat kalau putih:** View Page Source — harus ada skrip ke `/catalog-it/assets/index-….js`, **bukan** `/src/main.jsx`.
 
-Perintah lokal build (ganti path sesuai nama repo):
+Perintah lokal build (`VITE_BASE_PATH` = nilai `GITHUB_PAGES_BASE_PATH` di `siteLinks.js`):
 
 ```bash
 set VITE_BASE_PATH=/catalog-it/

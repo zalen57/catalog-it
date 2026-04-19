@@ -28,7 +28,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Harus sama dengan nama repo Project Pages: /catalog-it/ → https://zalen57.github.io/catalog-it/
+          # Harus sama dengan GITHUB_PAGES_BASE_PATH di src/config/siteLinks.js
           VITE_BASE_PATH: /catalog-it/
       - uses: actions/upload-pages-artifact@v3
         with:
