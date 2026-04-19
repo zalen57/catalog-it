@@ -1,3 +1,4 @@
+# Pages → Source harus "GitHub Actions". Jangan "Deploy from branch" (akan layani index.html dev → layar putih).
 name: Deploy to GitHub Pages
 
 on:

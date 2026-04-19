@@ -56,18 +56,21 @@ Ringkasnya ada di **[SETUP-FIREBASE.md](./SETUP-FIREBASE.md)**. Di repo ini juga
 
 ## GitHub Pages
 
-1. Repo Settings → Pages → Source: **GitHub Actions**.
-2. Di `.github/workflows/github-pages.yml`, sesuaikan `VITE_BASE_PATH` dengan nama repo (contoh `/catalog/` untuk `https://user.github.io/catalog/`).
-3. Untuk build di Actions dengan Firebase, tambahkan **Repository secrets** berisi variabel `VITE_FIREBASE_*` yang sama seperti di `.env`.
+1. Repo **Settings → Pages → Build and deployment → Source** harus **GitHub Actions** (bukan *Deploy from a branch*). Kalau pakai branch/root, yang dilayani adalah `index.html` sumber (`/src/main.jsx`) → **layar putih**.
+2. Setelah Source = Actions, tab **Actions** → jalankan workflow *Deploy to GitHub Pages* (atau push ke `main`). Tunggu hijau, lalu buka `https://USERNAME.github.io/REPO/`.
+3. Di `.github/workflows/github-pages.yml`, `VITE_BASE_PATH` harus `/nama-repo/`. Repo ini: **`/catalog-it/`** untuk `https://zalen57.github.io/catalog-it/`.
+4. Untuk Firebase di Pages: **Settings → Secrets and variables → Actions** → Repository secrets `VITE_FIREBASE_*` (sama seperti `.env` lokal).
 
-Perintah lokal build:
+**Cek cepat kalau putih:** View Page Source — harus ada skrip ke `/catalog-it/assets/index-….js`, **bukan** `/src/main.jsx`.
+
+Perintah lokal build (ganti path sesuai nama repo):
 
 ```bash
-set VITE_BASE_PATH=/catalog/
+set VITE_BASE_PATH=/catalog-it/
 npm run build
 ```
 
-(PowerShell: `$env:VITE_BASE_PATH='/catalog/'; npm run build`)
+(PowerShell: `$env:VITE_BASE_PATH='/catalog-it/'; npm run build`)
 
 ## Struktur
 
