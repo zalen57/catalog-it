@@ -1,0 +1,29 @@
+{
+  "name": "it-tech-catalog",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:xampp": "vite --base /catalog/dist/",
+    "build": "vite build",
+    "build:xampp": "vite build --base /catalog/dist/",
+    "preview": "vite preview",
+    "preview:xampp": "vite preview --base /catalog/dist/",
+    "firebase:deploy-rules": "npx --yes firebase-tools@13 deploy --only firestore:rules,storage"
+  },
+  "dependencies": {
+    "firebase": "^11.6.0",
+    "framer-motion": "^11.18.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.4.0",
+    "react-quill": "^2.0.0",
+    "react-router-dom": "^7.1.1",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.7"
+  }
+}
