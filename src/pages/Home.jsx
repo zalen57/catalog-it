@@ -42,9 +42,6 @@ export default function Home() {
                   Explore Artikel <HiArrowRight />
                 </Button>
               </Link>
-              <Link to="/admin">
-                <Button className="ghost">Admin Dashboard</Button>
-              </Link>
             </div>
           </motion.div>
           <motion.div
