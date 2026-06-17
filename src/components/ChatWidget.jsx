@@ -18,7 +18,7 @@ export default function ChatWidget() {
     {
       role: 'bot',
       text: geminiConfigured
-        ? 'Halo! Saya asisten IT Catalog — Gemini sudah terhubung. Tanya seputar teknologi, cloud, atau keamanan.'
+        ? 'Halo! Saya asisten IT Catalog. Hanya melayani seputar teknologi.'
         : 'Halo! Saya asisten IT Catalog (jawaban singkat lokal). Untuk Gemini: isi VITE_GEMINI_API_KEY di .env, lalu jalankan npm run build:xampp atau restart npm run dev, lalu refresh halaman.',
     },
   ])
