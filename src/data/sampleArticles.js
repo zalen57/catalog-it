@@ -1,4 +1,3 @@
-/** Sample content when Firebase belum dikonfigurasi — gambar pakai picsum.photos (lebih andal di localhost/XAMPP). */
 export const SAMPLE_ARTICLES = [
   {
     id: 'sample-1',

@@ -29,12 +29,12 @@ export default function Home() {
           >
             <span className="pill" style={{ marginBottom: '1rem', display: 'inline-flex' }}>
               <HiBolt aria-hidden />
-              Katalog Teknologi Modern
+              Tech curated
             </span>
-            <h1>Insight IT, desain premium, tanpa PHP & SQL</h1>
+            <h1>Ngerti tech. Tanpa ribet.</h1>
             <p className="hero-lead">
-              Baca topik yang lagi relevan—AI, coding, gadget, keamanan, sampai startup. Tanpa
-              basa-basi: fokus ke inti biar cepat dapat arah, bukan cuma judul yang menggoda.
+              AI, coding, gadget, security—isinya straight to the point biar kamu nggak ketinggalan
+              update.
             </p>
             <div className="cta-row">
               <Link to="/articles">
@@ -51,7 +51,7 @@ export default function Home() {
             transition={{ duration: 0.55, delay: 0.08 }}
           >
             <img
-              src="https://picsum.photos/id/1060/1400/900"
+              src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=80"
               alt=""
               referrerPolicy="no-referrer"
               decoding="async"

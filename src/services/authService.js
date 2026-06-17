@@ -1,37 +1,12 @@
+import { signOut } from 'firebase/auth'
+import { auth } from './firebase'
 import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
-import { auth, db, isFirebaseConfigured } from './firebase'
-import {
-  isDemoAdminSession,
-  demoAdminUser,
-  endDemoAdminSession,
-} from './demoAuth.js'
-
-/**
- * Domain untuk identitas Firebase (RFC: .invalid aman untuk uji/internal).
- * Bisa di-override: VITE_AUTH_EMAIL_DOMAIN=domainkamu.com
- * Catatan: Firebase Email/Password tetap menyimpan identitas sebagai email (wajib ada @ di backend Firebase).
- * Di form login Anda hanya mengisi User — tanpa mengetik @.
- */
-export function getAuthEmailDomain() {
-  const d = import.meta.env.VITE_AUTH_EMAIL_DOMAIN
-  if (typeof d === 'string' && d.trim()) return d.trim().toLowerCase()
-  return 'catalog.invalid'
-}
-
-export function userToAuthEmail(loginId) {
-  const slug = String(loginId)
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9._-]/g, '')
-  if (!slug) throw new Error('User tidak valid')
-  return `${slug}@${getAuthEmailDomain()}`
-}
+  isLocalAdminSession,
+  localAdminUser,
+  endLocalAdminSession,
+  loginLocalAdmin,
+  ADMIN_AUTH_EVENT,
+} from './localAdminAuth.js'
 
 export function getAuthorDisplayName(user) {
   if (!user) return 'Admin'
@@ -44,46 +19,30 @@ export function getAuthorDisplayName(user) {
 }
 
 export function subscribeAuth(callback) {
-  if (!isFirebaseConfigured || !auth) {
-    const emit = () => {
-      if (isDemoAdminSession()) {
-        callback(demoAdminUser)
-      } else {
-        callback(null)
-      }
-    }
-    emit()
-    window.addEventListener('it-catalog-demo-auth', emit)
-    return () => window.removeEventListener('it-catalog-demo-auth', emit)
+  const emit = () => {
+    callback(isLocalAdminSession() ? localAdminUser : null)
   }
-  return onAuthStateChanged(auth, (user) => callback(user))
+  emit()
+  window.addEventListener(ADMIN_AUTH_EVENT, emit)
+  return () => window.removeEventListener(ADMIN_AUTH_EVENT, emit)
 }
 
-export async function loginEmailPassword(email, password) {
-  if (!auth) throw new Error('Firebase Auth tidak tersedia')
-  return signInWithEmailAndPassword(auth, email, password)
-}
-
-/** Login admin: kolom User + password (Firebase: user@<domain>). */
-export async function loginWithUserPassword(loginId, password) {
-  if (!auth) throw new Error('Firebase Auth tidak tersedia')
-  const email = userToAuthEmail(loginId)
-  return signInWithEmailAndPassword(auth, email, password)
+export async function loginAdmin(username, password) {
+  return loginLocalAdmin(username, password)
 }
 
 export async function logoutUser() {
-  if (isDemoAdminSession()) {
-    endDemoAdminSession()
-    return
+  endLocalAdminSession()
+  if (auth) {
+    try {
+      await signOut(auth)
+    } catch {
+      /* ignore */
+    }
   }
-  if (!auth) return
-  await signOut(auth)
 }
 
 export async function fetchUserRole(uid) {
-  if (uid === demoAdminUser.uid) return 'admin'
-  if (!isFirebaseConfigured || !db) return 'guest'
-  const snap = await getDoc(doc(db, 'users', uid))
-  if (!snap.exists()) return 'guest'
-  return snap.data().role || 'guest'
+  if (uid === localAdminUser.uid) return 'admin'
+  return 'guest'
 }

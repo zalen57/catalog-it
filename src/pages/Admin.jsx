@@ -9,13 +9,15 @@ import {
   HiOutlineTrash,
   HiOutlinePencilSquare,
   HiOutlineXMark,
+  HiOutlineLockClosed,
+  HiOutlineUser,
 } from 'react-icons/hi2'
 import { motion, AnimatePresence } from 'framer-motion'
 import 'react-quill/dist/quill.snow.css'
 import Button from '../components/Button.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useArticles } from '../context/ArticlesContext.jsx'
-import { loginWithUserPassword, getAuthorDisplayName, getAuthEmailDomain } from '../services/authService'
+import { loginAdmin, getAuthorDisplayName } from '../services/authService'
 import {
   createArticle,
   updateArticle,
@@ -24,8 +26,6 @@ import {
   getArticle,
 } from '../services/articleService'
 import { CATEGORIES } from '../data/sampleArticles.js'
-import { startDemoAdminSession, demoAdminUser } from '../services/demoAuth.js'
-import { getFirebaseEnvChecklist } from '../utils/firebaseEnvStatus.js'
 
 const ReactQuill = lazy(() => import('react-quill'))
 
@@ -33,7 +33,7 @@ export default function Admin() {
   const { user, isAdmin, loading: authLoading, firebaseReady, logout } = useAuth()
   const { articles } = useArticles()
 
-  const [adminUser, setAdminUser] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [authErr, setAuthErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -80,7 +80,7 @@ export default function Admin() {
     setAuthErr('')
     setBusy(true)
     try {
-      await loginWithUserPassword(adminUser, password)
+      await loginAdmin(username, password)
     } catch (err) {
       setAuthErr(err?.message || 'Login gagal')
     }
@@ -143,118 +143,56 @@ export default function Admin() {
   }
 
   if (!user) {
-    if (!firebaseReady) {
-      const checklist = getFirebaseEnvChecklist()
-      return (
-        <div className="container" style={{ maxWidth: 520 }}>
-          <h1 className="section-title">Admin</h1>
-          <div className="glass" style={{ padding: '1.25rem', marginBottom: '1rem' }}>
-            <p className="muted" style={{ marginTop: 0 }}>
-              Aplikasi <strong>tidak melihat</strong> konfigurasi Firebase yang lengkap. Biasanya bukan karena Firebase
-              belum dibuat di Console, tapi karena <strong>variabel lingkungan tidak ikut ke build</strong> atau{' '}
-              <strong>nama variabel salah</strong>.
-            </p>
-            <ul className="muted" style={{ margin: '0.75rem 0', paddingLeft: '1.2rem', fontSize: '0.9rem' }}>
-              <li>
-                File harus bernama persis <code>.env</code> di folder yang sama dengan <code>package.json</code>{' '}
-                (bukan cuma <code>.env.example</code>). Di Windows sering file jadi <code>.env.txt</code> — cek di File
-                Explorer (aktifkan “ekstensi nama file”).
-              </li>
-              <li>
-                Nama variabel wajib diawali <code>VITE_</code>, misalnya <code>VITE_FIREBASE_API_KEY</code>. Tanpa{' '}
-                <code>VITE_</code>, Vite <strong>tidak</strong> memasukkannya ke aplikasi.
-              </li>
-              <li>
-                Kalau kamu buka lewat <strong>XAMPP + folder dist/</strong>: isi <code>.env</code> hanya dipakai{' '}
-                <strong>saat</strong> menjalankan <code>npm run build:xampp</code>. Setelah mengubah <code>.env</code>,{' '}
-                <strong>build ulang</strong> lalu refresh — <code>.env</code> tidak di-copy ke Apache; yang dibaca
-                browser cuma file di <code>dist/</code>.
-              </li>
-              <li>
-                Mode <code>npm run dev</code>: setelah edit <code>.env</code>, stop server (Ctrl+C) lalu{' '}
-                <code>npm run dev</code> lagi.
-              </li>
-            </ul>
-            <p style={{ marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.9rem' }}>
-              Yang terbaca di bundle saat ini (tanpa menampilkan secret):
-            </p>
-            <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', listStyle: 'none', paddingInlineStart: 0 }}>
-              {checklist.map((row) => (
-                <li key={row.key} style={{ marginBottom: 4 }}>
-                  {row.ok ? '✓' : '✗'} <code>{row.key}</code>
-                </li>
-              ))}
-            </ul>
-            <p className="muted" style={{ marginBottom: 0, marginTop: '0.75rem', fontSize: '0.9rem' }}>
-              <strong>Atau</strong> pakai <strong>mode demo</strong> di bawah — admin jalan tanpa Firebase (data di
-              browser).
-            </p>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-            <Button
-              type="button"
-              onClick={() => {
-                startDemoAdminSession()
-              }}
-            >
-              Masuk mode demo admin
-            </Button>
-            <Link to="/" className="button ghost" style={{ display: 'inline-flex' }}>
-              <HiOutlineArrowLeft /> Kembali
-            </Link>
-          </div>
-        </div>
-      )
-    }
-
-    const authDomain = getAuthEmailDomain()
     return (
-      <div className="container" style={{ maxWidth: 440 }}>
-        <h1 className="section-title">Admin Login</h1>
-        <form className="glass admin-form" style={{ padding: '1.25rem' }} onSubmit={onLogin} autoComplete="on">
-          <div className="field">
-            <label htmlFor="admin-user">User</label>
-            <input
-              id="admin-user"
-              name="user"
-              type="text"
-              inputMode="text"
-              autoComplete="username"
-              placeholder="contoh: admin"
-              value={adminUser}
-              onChange={(e) => setAdminUser(e.target.value)}
-              required
-            />
-            <p className="muted" style={{ fontSize: '0.8rem', marginTop: 6, marginBottom: 0 }}>
-              Di form ini cukup isi <strong>User</strong> (tanpa mengetik @). Login memakai{' '}
-              <code>
-                user@{authDomain}
-              </code>{' '}
-              secara otomatis. Satu kali di Firebase → Authentication, buat Email akun = User Anda + @ + domain (
-              contoh <code>admin@{authDomain}</code>). Ubah domain lewat variabel{' '}
-              <code>VITE_AUTH_EMAIL_DOMAIN</code> di file <code>.env</code> bila default tidak diterima.
-            </p>
+      <div className="admin-login-page">
+        <div className="admin-login-card glass">
+          <div className="admin-login-header">
+            <div className="admin-login-icon">
+              <HiOutlineLockClosed />
+            </div>
+            <h1>Panel Admin</h1>
+            <p className="muted">Masuk untuk mengelola artikel katalog</p>
           </div>
-          <div className="field">
-            <label htmlFor="pw">Password</label>
-            <input
-              id="pw"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <p className="muted" style={{ fontSize: '0.8rem', marginTop: 6, marginBottom: 0 }}>
-              Password tidak disimpan teks di Firestore kami; Firebase Auth meng-hash di server (standar keamanan).
-            </p>
-          </div>
-          {authErr && <p style={{ color: '#f87171', fontSize: '0.9rem' }}>{authErr}</p>}
-          <Button type="submit" disabled={busy}>
-            Masuk
-          </Button>
-        </form>
+          <form className="admin-form" onSubmit={onLogin} autoComplete="on">
+            <div className="field">
+              <label htmlFor="admin-user">Username</label>
+              <div className="admin-input-wrap">
+                <HiOutlineUser className="admin-input-icon" aria-hidden />
+                <input
+                  id="admin-user"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="admin-pw">Password</label>
+              <div className="admin-input-wrap">
+                <HiOutlineLockClosed className="admin-input-icon" aria-hidden />
+                <input
+                  id="admin-pw"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            {authErr && <p className="admin-login-error">{authErr}</p>}
+            <Button type="submit" disabled={busy} style={{ width: '100%', marginTop: 4 }}>
+              {busy ? 'Memproses…' : 'Masuk'}
+            </Button>
+          </form>
+          <Link to="/" className="admin-login-back">
+            <HiOutlineArrowLeft /> Kembali ke beranda
+          </Link>
+        </div>
       </div>
     )
   }
@@ -263,11 +201,7 @@ export default function Admin() {
     return (
       <div className="container">
         <h1 className="section-title">Akses ditolak</h1>
-        <p className="muted">
-          {user?.uid === demoAdminUser.uid
-            ? 'Sesi demo tidak valid. Coba keluar lalu masuk lagi.'
-            : 'Akun ini belum memiliki role admin di Firestore collection users.'}
-        </p>
+        <p className="muted">Sesi admin tidak valid. Silakan masuk ulang.</p>
         <Button className="ghost" onClick={() => logout()}>
           Logout
         </Button>
@@ -279,20 +213,24 @@ export default function Admin() {
     <div className="container">
       <div className="admin-shell glass" style={{ borderRadius: 18, overflow: 'hidden' }}>
         <aside className="admin-sidebar">
-          <div style={{ fontWeight: 800, marginBottom: 12, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-            Panel
-            {!firebaseReady && (
-              <span className="pill" style={{ fontSize: '0.7rem' }}>
-                Mode demo
-              </span>
-            )}
+          <div className="admin-sidebar-head">
+            <div style={{ fontWeight: 800 }}>Panel Admin</div>
+            <div className="admin-sidebar-user muted">
+              {getAuthorDisplayName(user)}
+              {!firebaseReady && (
+                <span className="pill" style={{ fontSize: '0.65rem', marginLeft: 6 }}>
+                  Lokal
+                </span>
+              )}
+            </div>
           </div>
-          <button type="button" onClick={() => setSection('dash')}>
+          <button type="button" className={section === 'dash' ? 'active' : ''} onClick={() => setSection('dash')}>
             <HiOutlineSquares2X2 />
             Dashboard
           </button>
           <button
             type="button"
+            className={section === 'articles' ? 'active' : ''}
             onClick={() => {
               setSection('articles')
               setEditingId(null)
@@ -303,6 +241,7 @@ export default function Admin() {
           </button>
           <button
             type="button"
+            className={section === 'editor' ? 'active' : ''}
             onClick={() => {
               setEditingId(null)
               setSection('editor')

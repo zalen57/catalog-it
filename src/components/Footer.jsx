@@ -7,10 +7,10 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-inner">
         <span>
-          © {new Date().getFullYear()} IT Tech Catalog — React · Firebase · No PHP/SQL
+          © {new Date().getFullYear()} IT Tech Catalog
           {' · '}
           <a href={LIVE_SITE_URL} target="_blank" rel="noreferrer">
-            Live
+            ReiCorp
           </a>
         </span>
         <span style={{ display: 'flex', gap: '0.75rem' }}>

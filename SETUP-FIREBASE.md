@@ -1,147 +1,112 @@
-# Setup Firebase
+# Setup Firebase (opsional)
 
-## Kalau kamu lagi pusing — baca ini dulu (10 detik)
+Firebase **tidak wajib**. Aplikasi sudah bisa dipakai penuh tanpa Firebase — artikel disimpan di browser (localStorage), login admin lewat kredensial di `.env`.
 
-**Kamu boleh skip Firebase.** Situsnya tetap jalan.
-
-1. Buka situs kamu (lokal: `http://localhost/catalog/dist/` — atau live: URL di [`src/config/siteLinks.js`](./src/config/siteLinks.js), field `LIVE_SITE_URL`).
-2. Buka menu **Admin**.
-3. Klik **Masuk mode demo admin**.
-
-Selesai. Itu sudah cukup buat **ngetes**, nulis artikel, lihat tampilan — semua disimpan di **browser kamu** (bukan di cloud). **Nggak ada** `.env`, **nggak ada** Console Google, **nggak ada** yang harus diurus malam ini.
+Firebase baru dibutuhkan jika kamu ingin data artikel tersimpan di cloud (bisa diakses dari perangkat lain) dan siap untuk deployment publik.
 
 ---
 
-**Firebase cuma dibutuhkan kalau** kamu mau data tersimpan di internet (ganti HP / ganti laptop tetap sama), hosting serius, atau banyak pengunjung. Kalau belum butuh itu — **stop di mode demo**, nanti sambil tenang baru buka bagian bawah dokumen ini.
+## Menjalankan tanpa Firebase
+
+1. Salin `.env.example` → `.env` (isi `VITE_ADMIN_USERNAME` dan `VITE_ADMIN_PASSWORD` sesuai keinginan).
+2. Jalankan `npm install`, lalu `npm run dev` → buka **http://localhost:5173**
+3. Atau untuk XAMPP: `npm run build:xampp` → buka **http://localhost/catalog/dist/**
+4. Buka **/admin** → masuk dengan username dan password dari `.env` (default: `admin` / `admin`).
+
+Artikel yang ditambah atau diubah tersimpan di **localStorage** browser.
 
 ---
 
-## Bagian bawah: Firebase (kalau sudah siap, ikuti urutan ini)
+## Setup Firebase (jika sudah siap)
 
-Kamu **tidak bisa** membuat project Firebase dari dalam folder kode ini. Yang dibuat di **browser** (Google) adalah project-nya; di folder ini kamu hanya **menempel konfigurasi** hasilnya.
+Konfigurasi Firebase dibuat di **Firebase Console** (browser). Di folder project ini kamu hanya menempelkan hasil konfigurasi ke file `.env`.
 
----
-
-## Langkah 1 — Buat project di Google
+### Langkah 1 — Buat project
 
 1. Buka **https://console.firebase.google.com/**
-2. **Add project** → isi nama → lanjutkan sampai selesai (Google Analytics boleh dimatikan).
+2. **Add project** → isi nama → selesaikan wizard (Google Analytics boleh dimatikan).
 
----
+### Langkah 2 — Aktifkan layanan
 
-## Langkah 2 — Aktifkan layanan
-
-Di sidebar project kamu:
-
-| Menu | Yang dilakukan |
-|------|----------------|
-| **Build → Authentication** | Tab **Sign-in method** → aktifkan **Email/Password** |
-| **Build → Firestore Database** | **Create database** → pilih lokasi → mulai (mode production atau test dulu, nanti ganti rules) |
+| Menu | Tindakan |
+|------|----------|
+| **Build → Firestore Database** | **Create database** → pilih lokasi → mulai |
 | **Build → Storage** | **Get started** → selesaikan wizard |
 
----
+Authentication tidak wajib — login admin diatur di aplikasi lewat `.env`.
 
-## Langkah 3 — Ambil config untuk file `.env`
+### Langkah 3 — Ambil config ke `.env`
 
-1. Klik ikon **roda gigi** → **Project settings**.
-2. Scroll ke **Your apps** → **Add app** → pilih **Web** (`</>`).
-3. Beri nama app → **Register app**.
-4. Akan muncul objek `firebaseConfig` seperti ini:
-
-```js
-const firebaseConfig = {
-  apiKey: "....",
-  authDomain: "....",
-  projectId: "....",
-  storageBucket: "....",
-  messagingSenderId: "....",
-  appId: "...."
-};
-```
-
-5. Buka file **`.env`** di folder project ini (`catalog` sejajar `package.json`).
-6. Isi **tanpa tanda kutip** (atau pakai kutip, Vite tetap baca), contoh:
+1. **Project settings** (ikon roda gigi) → **Your apps** → **Add app** → **Web** (`</>`).
+2. Salin nilai dari objek `firebaseConfig`.
+3. Isi di file **`.env`** (sejajar `package.json`):
 
 ```env
-VITE_FIREBASE_API_KEY=isi_dari_apiKey
-VITE_FIREBASE_AUTH_DOMAIN=isi_dari_authDomain
-VITE_FIREBASE_PROJECT_ID=isi_dari_projectId
-VITE_FIREBASE_STORAGE_BUCKET=isi_dari_storageBucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=isi_dari_messagingSenderId
-VITE_FIREBASE_APP_ID=isi_dari_appId
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
 ```
 
-7. Simpan file.
+4. Simpan file.
 
----
+### Langkah 4 — Deploy aturan keamanan
 
-## Langkah 4 — Aturan keamanan (Firestore + Storage)
+Buat file **`.firebaserc`** di root project:
 
-Di komputer (satu kali, dari folder project ini):
+```json
+{
+  "projects": {
+    "default": "PROJECT_ID_KAMU"
+  }
+}
+```
 
-1. Edit **`.firebaserc`** → ganti `GANTI-DENGAN-PROJECT-ID-FIREBASE-KAMU` dengan **project ID** yang sama dengan `VITE_FIREBASE_PROJECT_ID` di `.env`.
-2. Jalankan:
+Ganti `PROJECT_ID_KAMU` dengan nilai `VITE_FIREBASE_PROJECT_ID` di `.env`.
+
+Lalu jalankan dari folder project:
 
 ```bash
 npx firebase-tools@13 login
 npm run firebase:deploy-rules
 ```
 
-(`npm run firebase:deploy-rules` memakai `npx firebase-tools` — tidak wajib install global.)
+Atau tempel manual di Console: **Firestore → Rules** (isi `firestore.rules`) dan **Storage → Rules** (isi `storage.rules`), lalu **Publish**.
 
-Atau dari **Firebase Console** → Firestore → **Rules** → tempel isi file **`firestore.rules`** di repo ini → **Publish**.  
-Storage → **Rules** → tempel **`storage.rules`** → **Publish**.
+### Langkah 5 — Build ulang
 
----
+- XAMPP: `npm run build:xampp` → refresh **http://localhost/catalog/dist/**
+- Dev: stop server → `npm run dev`
 
-## Langkah 5 — Buat akun admin
-
-1. **Authentication → Users → Add user**  
-   - Email: bentuk `namapengguna@catalog.invalid` (contoh: `admin@catalog.invalid`)  
-   - Password: yang kamu mau  
-2. Buka **Authentication → Users** → klik user itu → salin **User UID**.
-3. **Firestore Database** → **Start collection** → id: **`users`**  
-4. **Add document** → **Document ID** = **UID** yang tadi (tempel persis).  
-5. Field tambahan:
-   - `role` (string) = `admin`
+Login admin tetap memakai **username/password dari `.env`**, bukan akun Firebase.
 
 ---
 
-## Langkah 6 — Jalankan ulang build / dev
+## Chatbot Gemini (opsional)
 
-- **XAMPP** (folder `dist/`):  
-  `npm run build:xampp`  
-  lalu buka lagi `http://localhost/catalog/dist/` (atau URL live di [`src/config/siteLinks.js`](./src/config/siteLinks.js))
+1. Buat API key di **https://aistudio.google.com/apikey**
+2. Tambahkan di `.env`:
 
-- **npm run dev**:  
-  stop server (Ctrl+C) → `npm run dev` lagi.
+```env
+VITE_GEMINI_API_KEY=...
+VITE_GEMINI_MODEL=gemini-2.5-flash
+```
 
----
+3. Build ulang (`npm run build:xampp` atau restart `npm run dev`).
 
-## Kalau masih error
+Tanpa key, chatbot memakai jawaban lokal (tanpa panggilan API).
 
-- Buka `/admin` → lihat daftar ✓/✗ variabel `VITE_FIREBASE_*`.
-- Pastikan file bernama **`.env`**, bukan `.env.txt`.
-- Pastikan nama variabel ada awalan **`VITE_`**.
-
-Mode **demo admin** (tanpa Firebase) tetap ada di `/admin` untuk coba-coba dulu.
+**Keamanan:** key ikut ke bundle JavaScript di browser. Batasi key di Google AI Studio (HTTP referrer) dan jangan commit file `.env`.
 
 ---
 
-## Chatbot pakai Gemini (opsional, tidak wajib Firebase)
+## Troubleshooting
 
-1. Buka **https://aistudio.google.com/apikey** (login pakai Google).
-2. **Create API key** → salin key-nya (panjang, mulai huruf `AIza...`).
-3. Di file **`.env`** di folder project, isi baris ini (tanpa spasi sebelum/sesudah `=`):
-
-   ```env
-   VITE_GEMINI_API_KEY=tempel_key_di_sini
-   ```
-
-4. Simpan `.env`, lalu:
-   - **XAMPP / `dist/`:** jalankan lagi `npm run build:xampp` → refresh halaman.
-   - **`npm run dev`:** stop server (Ctrl+C) → `npm run dev` lagi.
-
-5. Buka situs → ikon chat pojok kanan bawah → tanya apa saja; jawaban sekarang dari **Gemini** (bukan FAQ lokal).
-
-**Keamanan:** key ikut ke file JS di browser (siapa saja bisa lihat di DevTools). Di Google AI Studio / Cloud Console, **batasi key** (misalnya referrer / bundle) kalau dipakai publik. Jangan upload `.env` berisi key ke repo publik.
+| Masalah | Solusi |
+|---------|--------|
+| Layar putih di XAMPP | Buka `/catalog/dist/`, bukan `/catalog/` saja. Pastikan sudah `npm run build:xampp`. |
+| Login admin gagal | Cek `VITE_ADMIN_USERNAME` dan `VITE_ADMIN_PASSWORD` di `.env`, lalu build ulang. |
+| Variabel Firebase tidak terbaca | File harus bernama `.env` (bukan `.env.txt`), variabel pakai awalan `VITE_`. |
+| Perubahan `.env` tidak muncul | Restart `npm run dev` atau jalankan ulang `npm run build:xampp`. |

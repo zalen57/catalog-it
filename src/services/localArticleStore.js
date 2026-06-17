@@ -15,7 +15,6 @@ function readRaw() {
   }
 }
 
-/** Daftar artikel untuk publik & admin (urut terbaru). */
 export function getArticlesDisplayList() {
   const local = readRaw()
   if (local && local.length > 0) {
@@ -29,7 +28,6 @@ function writeAndNotify(list) {
   window.dispatchEvent(new CustomEvent(LOCAL_ARTICLES_EVENT))
 }
 
-/** Salin sample ke localStorage lalu kembalikan array yang bisa dimutasi. */
 function getMutableList() {
   const raw = readRaw()
   if (raw && raw.length > 0) return [...raw]

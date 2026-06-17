@@ -1,7 +1,3 @@
-/**
- * Chatbot: Gemini jika VITE_GEMINI_API_KEY diset.
- * Pakai v1beta (field systemInstruction). Default gemini-2.5-flash: 2.0-flash sering 429 kuota free tier.
- */
 const DEFAULT_MODEL = 'gemini-2.5-flash'
 
 function normalizeModelId(raw) {
