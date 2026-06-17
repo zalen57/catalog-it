@@ -85,22 +85,74 @@ async function geminiReply(message, priorMessages) {
   })
 
   const raw = await res.text()
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: ${raw.slice(0, 200)}`)
-  }
-
-  let data
+  let data = null
   try {
     data = JSON.parse(raw)
   } catch {
-    throw new Error('Respons Gemini bukan JSON')
+    /* non-JSON */
   }
+
+  if (!res.ok) {
+    const apiMsg = data?.error?.message || raw.slice(0, 200) || 'Unknown error'
+    const err = new Error(apiMsg)
+    err.httpStatus = res.status
+    err.apiStatus = data?.error?.status || ''
+    throw err
+  }
+
+  if (!data) throw new Error('Respons Gemini bukan JSON')
 
   const text =
     data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ||
     data?.error?.message ||
     'Maaf, tidak ada balasan (cek safety / prompt).'
   return String(text).trim()
+}
+
+function explainGeminiError(err, fallbackAnswer) {
+  const msg = String(err?.message || 'error')
+  const status = err?.httpStatus
+  const origin =
+    typeof window !== 'undefined' && window.location?.origin
+      ? window.location.origin
+      : 'domain ini'
+
+  const referrerBlocked =
+    /referer\s+\S+\s+are blocked/i.test(msg) ||
+    /API_KEY_HTTP_REFERRER_BLOCKED/i.test(msg) ||
+    (status === 403 && /referer/i.test(msg))
+
+  if (referrerBlocked) {
+    const blocked = msg.match(/referer\s+(\S+)\s+are blocked/i)?.[1] || origin
+    return (
+      `Gemini diblokir: domain "${blocked}" belum di-whitelist di API key.\n\n` +
+      `Buka Google Cloud Console → APIs & Services → Credentials → edit API key → HTTP referrers, tambahkan SEMUA ini:\n` +
+      `• http://localhost/*\n` +
+      `• http://127.0.0.1/*\n` +
+      `• http://localhost:5173/*\n` +
+      `• https://zalen57.github.io/*\n` +
+      `• https://zalen57.github.io/catalog-it/*\n\n` +
+      `Simpan, tunggu 1 menit, refresh halaman.\n\n` +
+      `Jawaban offline:\n${fallbackAnswer}`
+    )
+  }
+
+  const quota =
+    /\b429\b/.test(msg) ||
+    /quota|rate limit|RESOURCE_EXHAUSTED/i.test(msg) ||
+    err?.apiStatus === 'RESOURCE_EXHAUSTED'
+
+  if (quota) {
+    return (
+      `Kuota Gemini habis / rate limit. Coba VITE_GEMINI_MODEL=gemini-2.5-flash atau tunggu beberapa menit.\n\n` +
+      `Jawaban offline:\n${fallbackAnswer}`
+    )
+  }
+
+  return (
+    `Gemini error (${status || 'jaringan'}): ${msg.slice(0, 160)}\n\n` +
+    `Jawaban offline:\n${fallbackAnswer}`
+  )
 }
 
 export async function sendChatMessage(message, priorMessages) {
@@ -111,20 +163,7 @@ export async function sendChatMessage(message, priorMessages) {
     return await geminiReply(trimmed, priorMessages)
   } catch (e) {
     if (import.meta.env.DEV) console.error('[Gemini]', e)
-    if (hasKey) {
-      const detail = String(e?.message || 'error')
-      const quota =
-        /\b429\b/.test(detail) ||
-        /quota|rate limit|RESOURCE_EXHAUSTED/i.test(detail)
-      const hint = quota
-        ? ' Kuota/rate limit (sering di free tier untuk gemini-2.0-flash). Coba VITE_GEMINI_MODEL=gemini-2.5-flash lalu restart dev / build ulang.'
-        : ' Coba VITE_GEMINI_MODEL=gemini-2.5-flash, cek pembatasan HTTP referrer di Google AI Studio, lalu restart dev / build ulang.'
-      return (
-        'Maaf, Gemini gagal membalas. Key terdeteksi — cek model, kuota, atau pembatasan key. Detail: ' +
-        detail.slice(0, 280) +
-        hint
-      )
-    }
-    return localReply(trimmed)
+    if (!hasKey) return localReply(trimmed)
+    return explainGeminiError(e, localReply(trimmed))
   }
 }
